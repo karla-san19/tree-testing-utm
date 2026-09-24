@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Prueba de navegación — Plataforma de Posgrado UTM</title>
+<style>
+  :root {
+    --navy:#00033D; --blue:#0600A8; --bright:#0033FF;
+    --pink:#FFCCF2; --blush:#F2E6EE; --white:#fff;
+    --gray:#6B6B8A; --lgray:#E8E8F0;
+    --green:#0F6E56; --red:#993C1D; --radius:8px;
+    --shadow:0 2px 12px rgba(0,3,61,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--blush);color:var(--navy);min-height:100vh;padding-bottom:env(safe-area-inset-bottom,0px);}
+  header{background:var(--navy);padding:16px 24px;}
+  header h1{font-size:15px;font-weight:700;color:var(--pink);}
+  header p{font-size:11px;color:var(--lgray);margin-top:2px;}
+  #progress-wrap{background:var(--blue);height:6px;}
+  #progress-bar{height:6px;background:var(--pink);transition:width .4s ease;width:0%;}
+  main{max-width:680px;margin:0 auto;padding:20px 16px 48px;}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:16px;}
+  /* Welcome */
+  .logo{width:52px;height:52px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:14px;}
+  #screen-welcome h2{font-size:20px;margin-bottom:8px;}
+  #screen-welcome p{font-size:13px;color:var(--gray);line-height:1.6;margin-bottom:10px;}
+  .info-box{background:var(--blush);border-left:4px solid var(--bright);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--navy);margin:14px 0;line-height:1.6;}
+  .field-label{font-size:12px;font-weight:600;margin-bottom:5px;}
+  input[type=text],select{width:100%;padding:10px 12px;border:1.5px solid var(--lgray);border-radius:6px;font-size:13px;color:var(--navy);margin-bottom:12px;outline:none;}
+  input[type=text]:focus,select:focus{border-color:var(--bright);}
+  /* Task */
+  .task-counter{font-size:11px;font-weight:700;color:var(--bright);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+  .task-question{font-size:16px;font-weight:700;color:var(--navy);line-height:1.45;margin-bottom:18px;padding-bottom:14px;border-bottom:1.5px solid var(--lgray);}
+  .tree-label{font-size:11px;font-weight:600;color:var(--gray);letter-spacing:.5px;margin-bottom:8px;}
+  #breadcrumb{font-size:11px;color:var(--gray);background:var(--blush);border-radius:4px;padding:7px 10px;margin-bottom:14px;min-height:32px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+  #breadcrumb span{color:var(--bright);font-weight:600;}
+  .crumb{color:var(--navy);font-weight:500;}
+  .crumb-sep{color:var(--lgray);}
+  .tree{list-style:none;}
+  .tree li{margin:3px 0;}
+  .node-btn{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:6px;border:1.5px solid transparent;background:var(--lgray);font-size:12px;color:var(--navy);cursor:pointer;transition:all .18s;}
+  .node-btn:hover{background:var(--pink);border-color:var(--bright);}
+  .node-btn.selected{background:var(--bright);color:var(--white);border-color:var(--blue);font-weight:600;}
+  .node-btn.level-1{font-weight:700;background:var(--navy);color:var(--pink);font-size:12px;}
+  .node-btn.level-1:hover{background:var(--blue);}
+  .node-btn.level-1.selected{background:var(--bright);color:var(--white);}
+  .expand-icon{float:right;font-size:10px;opacity:.7;transition:transform .2s;}
+  .expanded .expand-icon{transform:rotate(90deg);}
+  .children{padding-left:18px;margin-top:3px;border-left:2px solid var(--lgray);}
+  .children.hidden{display:none;}
+  /* Buttons */
+  .btn{display:inline-block;padding:11px 24px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;}
+  .btn-primary{background:var(--bright);color:var(--white);}
+  .btn-primary:hover{background:var(--blue);}
+  .btn-primary:disabled{background:var(--lgray);color:var(--gray);cursor:not-allowed;}
+  .btn-secondary{background:var(--lgray);color:var(--navy);}
+  .btn-secondary:hover{background:var(--pink);}
+  .btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .skip-link{font-size:11px;color:var(--gray);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block;}
+  /* Feedback */
+  .feedback-box{padding:12px 14px;border-radius:6px;margin:14px 0;font-size:12px;line-height:1.5;display:none;}
+  .feedback-correct{background:#E6F5EF;border-left:4px solid var(--green);color:#0A4030;}
+  .feedback-wrong{background:#FAF0ED;border-left:4px solid var(--red);color:#5C2010;}
+  .feedback-skip{background:var(--blush);border-left:4px solid var(--gray);color:var(--gray);}
+  /* Questionnaire */
+  .q-label{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:8px;line-height:1.4;}
+  .scale-row{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+  .scale-btn{flex:1;min-width:44px;padding:9px 4px;border-radius:6px;border:1.5px solid var(--lgray);background:var(--lgray);font-size:13px;font-weight:700;cursor:pointer;color:var(--navy);text-align:center;transition:all .18s;}
+  .scale-btn:hover{border-color:var(--bright);background:var(--pink);}
+  .scale-btn.sel{background:var(--bright);border-color:var(--blue);color:var(--white);}
+  .scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-top:-4px;margin-bottom:18px;}
+  .checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px;}
+  @media(max-width:480px){.checkbox-grid{grid-template-columns:1fr;}}
+  .checkbox-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:6px;border:1.5px solid var(--lgray);cursor:pointer;font-size:12px;transition:all .18s;background:var(--lgray);}
+  .checkbox-item:hover{border-color:var(--bright);background:var(--pink);}
+  .checkbox-item input{accent-color:var(--bright);width:15px;height:15px;}
+  .checkbox-item.checked{background:#EEF0FF;border-color:var(--blue);}
+  textarea{width:100%;padding:10px 12px;border:1.5px solid var(--lgray);border-radius:6px;font-size:13px;font-family:inherit;color:var(--navy);resize:vertical;min-height:80px;outline:none;margin-bottom:18px;}
+  textarea:focus{border-color:var(--bright);}
+  /* Done */
+  #screen-done{text-align:center;padding:28px 20px;}
+  #screen-done .check{font-size:52px;margin-bottom:14px;}
+  #screen-done h2{font-size:20px;color:var(--navy);margin-bottom:8px;}
+  #screen-done p{font-size:13px;color:var(--gray);line-height:1.6;}
+  #loading{text-align:center;padding:48px;color:var(--gray);font-size:13px;}
+  .err{color:var(--red);font-size:12px;margin-top:-8px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Prueba de navegación — Plataforma académica de posgrado UTM</h1>
+  <p>Investigación: Maestría en Medios Interactivos · Karla S. Sánchez · 2026</p>
+</header>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<main>
+  <div id="loading">Cargando prueba…</div>
+
+  <!-- BIENVENIDA -->
+  <div id="screen-welcome" class="card" style="display:none">
+    <div class="logo">🎓</div>
+    <h2>Hola, gracias por participar</h2>
+    <p>Esta prueba nos ayuda a validar si la organización de contenidos de una plataforma académica digital es fácil de entender para los estudiantes de posgrado.</p>
+    <div class="info-box">
+      📋 <strong>¿En qué consiste?</strong><br>
+      Te presentaremos <strong>12 situaciones cotidianas</strong>. Para cada una, explora el menú de la plataforma y selecciona dónde crees que encontrarías lo que necesitas. Al final hay 5 preguntas rápidas.<br><br>
+      ⏱ Duración aproximada: <strong>10-15 minutos</strong><br>
+      🔒 Tus respuestas son <strong>anónimas</strong> y se usan únicamente con fines académicos.
+    </div>
+    <div class="field-label">¿Cuál es tu semestre actual o condición? *</div>
+    <select id="inp-semestre">
+      <option value="">— Selecciona —</option>
+      <option>1er semestre</option>
+      <option>2do semestre</option>
+      <option>3er semestre</option>
+      <option>4to semestre</option>
+      <option>5to semestre</option>
+      <option>6to semestre o más</option>
+      <option>Egresado/a en proceso de titulación</option>
+    </select>
+    <div class="field-label">¿A qué programa perteneces? *</div>
+    <input type="text" id="inp-programa" placeholder="Ej. Maestría en Medios Interactivos"/>
+    <p id="err-welcome" class="err" style="display:none">Por favor completa ambos campos antes de continuar.</p>
+    <button class="btn btn-primary" onclick="startTest()">Comenzar prueba →</button>
+  </div>
+
+  <!-- TAREA -->
+  <div id="screen-task" style="display:none">
+    <div class="card">
+      <div class="task-counter" id="task-counter">Tarea 1 de 12</div>
+      <div class="task-question" id="task-question"></div>
+      <div id="breadcrumb"><span>Selecciona una sección del menú ↓</span></div>
+      <div class="tree-label">MENÚ DE LA PLATAFORMA</div>
+      <ul class="tree" id="tree-root"></ul>
+      <div id="feedback-correct" class="feedback-box feedback-correct"></div>
+      <div id="feedback-wrong" class="feedback-box feedback-wrong"></div>
+      <div id="feedback-skip" class="feedback-box feedback-skip"></div>
+      <div class="btn-row" id="btn-row-confirm">
+        <button class="btn btn-primary" id="btn-confirm" onclick="confirmSelection()" disabled>Confirmar selección</button>
+        <button class="btn btn-secondary" onclick="skipTask()">No sé / No encontré</button>
+      </div>
+      <div class="skip-link" id="skip-link-txt" onclick="skipTask()">Saltar esta tarea</div>
+      <div id="btn-row-next" style="display:none;margin-top:16px;">
+        <button class="btn btn-primary" onclick="nextTask()" id="btn-next">Siguiente tarea →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUESTIONARIO -->
+  <div id="screen-questionnaire" style="display:none">
+    <div class="card">
+      <div class="task-counter">Cuestionario final</div>
+      <div class="task-question" style="margin-bottom:18px">Ya terminaste las tareas. Responde estas 5 preguntas sobre tu experiencia.</div>
+      <div class="q-label">1. ¿Qué tan fácil te resultó encontrar lo que buscabas en general?</div>
+      <div class="scale-row" id="scale-q1"></div>
+      <div class="scale-labels"><span>Muy difícil</span><span>Muy fácil</span></div>
+      <div class="q-label">2. ¿Qué tan seguro/a te sentiste de que estabas llegando al lugar correcto?</div>
+      <div class="scale-row" id="scale-q2"></div>
+      <div class="scale-labels"><span>Nada seguro/a</span><span>Completamente seguro/a</span></div>
+      <div class="q-label">3. ¿Cuáles de estos nombres de sección te resultaron difíciles de entender o confusos? Marca todos los que apliquen.</div>
+      <div class="checkbox-grid" id="checkbox-labels"></div>
+      <div class="q-label">4. ¿Quieres comentar algo sobre los nombres que marcaste, o compartir alguna duda o comentario sobre cómo está organizada la plataforma?</div>
+      <textarea id="q4-text" placeholder="Escribe aquí tu comentario (opcional)…"></textarea>
+      <div class="q-label">5. ¿Qué tan bien organizada te parece la plataforma en general?</div>
+      <div class="scale-row" id="scale-q5"></div>
+      <div class="scale-labels"><span>Muy desorganizada</span><span>Muy bien organizada</span></div>
+      <p id="err-questionnaire" class="err" style="display:none">Por favor responde las preguntas de escala (1, 2 y 5) antes de enviar.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitQuestionnaire()">Enviar respuestas ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRACIAS -->
+  <div id="screen-done" class="card" style="display:none">
+    <div class="check">✅</div>
+    <h2>¡Muchas gracias por participar!</h2>
+    <p>Tus respuestas han sido registradas y son de gran valor para esta investigación.<br><br>
+    Si tienes alguna pregunta sobre el estudio puedes escribir a:<br>
+    <strong>karlasanchezsilva19@gs.utm.mx</strong></p>
+  </div>
+</main>
+
+<script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwgsdv3YsBdhD5NHnl_eaIY8CRN6LlAPQAjCoM_7WYK5BjHxEOYVHrd5VkNGC6-Cx3V/exec";
+
+const TREE = [
+  { id:"perfil", label:"Mi perfil", level:1, children:[
+    { id:"calificaciones", label:"Calificaciones", level:2 },
+    { id:"mis-docs", label:"Mis documentos", level:2, children:[
+      { id:"checklist", label:"Checklist de documentos", level:3 }
+    ]},
+    { id:"tramites-perfil", label:"Trámites", level:2, children:[
+      { id:"formatos-perfil", label:"Formatos", level:3 },
+      { id:"beca-perfil", label:"Beca SECIHTI", level:3 }
+    ]},
+    { id:"revision-tesis", label:"Revisión de tesis", level:2 }
+  ]},
+  { id:"centro", label:"Centro de información", level:1, children:[
+    { id:"historial", label:"Historial del programa", level:2, children:[
+      { id:"postulacion", label:"Postulación e ingreso", level:3 },
+      { id:"semestres", label:"1er, 2do, 3er semestre…", level:3 },
+      { id:"titulacion", label:"Titulación", level:3 },
+      { id:"casos", label:"Casos extraordinarios", level:3 }
+    ]},
+    { id:"directorio", label:"Directorio y horarios", level:2 },
+    { id:"tramites-centro", label:"Trámites", level:2, children:[
+      { id:"formatos-centro", label:"Formatos", level:3 },
+      { id:"beca-centro", label:"Beca SECIHTI", level:3 }
+    ]}
+  ]},
+  { id:"tutorias", label:"Tutorías", level:1, children:[
+    { id:"agenda", label:"Agenda de sesiones", level:2 },
+    { id:"acuerdos", label:"Acuerdos", level:2 }
+  ]},
+  { id:"buzon", label:"Buzón", level:1, children:[
+    { id:"quejas", label:"Quejas y sugerencias", level:2, children:[
+      { id:"hacer-queja", label:"Hacer queja", level:3 },
+      { id:"seguimiento", label:"Dar seguimiento", level:3 }
+    ]},
+    { id:"evaluacion", label:"Evaluación docente", level:2 },
+    { id:"encuestas", label:"Encuestas de satisfacción", level:2 },
+    { id:"agradecimiento", label:"Agradecimiento", level:2 }
+  ]},
+  { id:"notificaciones", label:"Notificaciones", level:1 },
+  { id:"comunidad", label:"Comunidad", level:1 },
+  { id:"calendario", label:"Calendario", level:1 }
+];
+
+const TASKS = [
+  { q:"Quieres saber cuánto llevas de promedio este semestre. ¿Dónde lo buscarías?", correct:["calificaciones"] },
+  { q:"Necesitas descargar el formato de reinscripción para el siguiente semestre. ¿Dónde lo encontrarías?", correct:["formatos-perfil","formatos-centro"] },
+  { q:"Quieres saber si hay algún congreso o convocatoria de beca abierta para estudiantes de posgrado. ¿Dónde lo buscarías?", correct:["comunidad"] },
+  { q:"Quieres saber qué documentos te hace falta entregar antes de que venza el plazo. ¿Dónde lo revisarías?", correct:["checklist","mis-docs"] },
+  { q:"No sabes qué requisitos debes cumplir durante tu estancia en el posgrado para llegar a titularte. ¿Dónde lo buscarías?", correct:["titulacion","historial"] },
+  { q:"Quieres ver los horarios disponibles de tu tutor para agendar una sesión. ¿Dónde lo buscarías?", correct:["agenda","tutorias"] },
+  { q:"Tienes una entrega importante la próxima semana y quieres ver todas las fechas del semestre. ¿Dónde lo consultarías?", correct:["calendario"] },
+  { q:"Quieres reportar algo sobre un docente pero sin revelar tu identidad. ¿Dónde lo harías?", correct:["hacer-queja","quejas","buzon"] },
+  { q:"Tienes una sesión de tutoría la próxima semana y quieres ver qué acordaste en la última. ¿Dónde lo revisarías?", correct:["acuerdos","tutorias"] },
+  { q:"Termina el semestre y quieres evaluar a tus profesores de forma anónima. ¿Dónde lo harías?", correct:["evaluacion","buzon"] },
+  { q:"Recibes una alerta pero no recuerdas de qué era. ¿Dónde verías todos tus avisos pendientes?", correct:["notificaciones"] },
+  { q:"Quieres saber qué pasó con una queja que enviaste hace dos semanas. ¿Dónde lo verificarías?", correct:["seguimiento","quejas","buzon"] }
+];
+
+const LABELS_LIST = [
+  "Mi perfil","Calificaciones","Mis documentos","Checklist de documentos",
+  "Trámites","Revisión de tesis","Centro de información","Historial del programa",
+  "Directorio y horarios","Tutorías","Agenda de sesiones","Acuerdos",
+  "Buzón","Quejas y sugerencias","Evaluación docente","Encuestas de satisfacción",
+  "Agradecimiento","Notificaciones","Comunidad","Calendario",
+  "Ninguno me resultó confuso"
+];
+
+// ── Estado ──
+let participantId = "p_" + Date.now() + "_" + Math.random().toString(36).slice(2,7);
+let participantSemestre = "";
+let participantPrograma = "";
+let currentTask = 0;
+let selectedNode = null;
+let selectedPath = [];
+let answers = [];
+let confirmed = false;
+const scaleAnswers = { q1:null, q2:null, q5:null };
+const checkedLabels = new Set();
+
+// ── Init ──
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("screen-welcome").style.display = "block";
+  setProgress(0);
+});
+
+function setProgress(pct) {
+  document.getElementById("progress-bar").style.width = pct + "%";
+}
+
+// ── Welcome ──
+function startTest() {
+  const sem = document.getElementById("inp-semestre").value;
+  const prog = document.getElementById("inp-programa").value.trim();
+  if (!sem || !prog) { document.getElementById("err-welcome").style.display = "block"; return; }
+  document.getElementById("err-welcome").style.display = "none";
+  participantSemestre = sem;
+  participantPrograma = prog;
+  document.getElementById("screen-welcome").style.display = "none";
+  showTask(0);
+}
+
+// ── Tree ──
+function buildTree(nodes, container) {
+  nodes.forEach(node => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.className = "node-btn level-" + node.level;
+    btn.dataset.id = node.id;
+    btn.textContent = node.label;
+    if (node.children && node.children.length) {
+      const icon = document.createElement("span");
+      icon.className = "expand-icon"; icon.textContent = "▶";
+      btn.appendChild(icon);
+      btn.addEventListener("click", () => {
+        if (confirmed) return;
+        const childList = li.querySelector(".children");
+        const isExpanded = !childList.classList.contains("hidden");
+        if (isExpanded) { childList.classList.add("hidden"); btn.classList.remove("expanded"); }
+        else { childList.classList.remove("hidden"); btn.classList.add("expanded"); }
+        selectNode(node, btn, getPath(node));
+      });
+      const childUl = document.createElement("ul");
+      childUl.className = "tree children hidden";
+      buildTree(node.children, childUl);
+      li.appendChild(btn); li.appendChild(childUl);
+    } else {
+      btn.addEventListener("click", () => { if (confirmed) return; selectNode(node, btn, getPath(node)); });
+      li.appendChild(btn);
+    }
+    container.appendChild(li);
+  });
+}
+
+function getPath(targetNode) {
+  function search(nodes, path) {
+    for (const n of nodes) {
+      const newPath = [...path, n.label];
+      if (n.id === targetNode.id) return newPath;
+      if (n.children) { const found = search(n.children, newPath); if (found) return found; }
+    }
+    return null;
+  }
+  return search(TREE, []) || [targetNode.label];
+}
+
+function selectNode(node, btn, path) {
+  if (confirmed) return;
+  document.querySelectorAll(".node-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  selectedNode = node; selectedPath = path;
+  const bc = document.getElementById("breadcrumb");
+  bc.innerHTML = path.map((seg, i) => {
+    const isLast = i === path.length - 1;
+    return `<span class="crumb" ${isLast?'style="color:var(--bright);font-weight:700"':''}>${seg}</span>${!isLast?'<span class="crumb-sep"> › </span>':''}`;
+  }).join('');
+  document.getElementById("btn-confirm").disabled = false;
+}
+
+// ── Task flow ──
+function showTask(idx) {
+  currentTask = idx; confirmed = false; selectedNode = null; selectedPath = [];
+  document.getElementById("task-counter").textContent = `Tarea ${idx+1} de ${TASKS.length}`;
+  document.getElementById("task-question").textContent = TASKS[idx].q;
+  document.getElementById("btn-confirm").disabled = true;
+  document.getElementById("breadcrumb").innerHTML = '<span>Selecciona una sección del menú ↓</span>';
+  ["feedback-correct","feedback-wrong","feedback-skip"].forEach(id => {
+    const el = document.getElementById(id); el.style.display = "none"; el.textContent = "";
+  });
+  document.getElementById("btn-row-confirm").style.display = "flex";
+  document.getElementById("skip-link-txt").style.display = "inline-block";
+  document.getElementById("btn-row-next").style.display = "none";
+  const root = document.getElementById("tree-root"); root.innerHTML = "";
+  buildTree(TREE, root);
+  document.getElementById("screen-task").style.display = "block";
+  setProgress(Math.round((idx / (TASKS.length + 1)) * 100));
+}
+
+function confirmSelection() {
+  if (!selectedNode || confirmed) return;
+  confirmed = true;
+  document.getElementById("btn-confirm").disabled = true;
+  const task = TASKS[currentTask];
+  const isCorrect = task.correct.includes(selectedNode.id);
+  answers.push({ task: currentTask+1, question: task.q, selected_id: selectedNode.id, selected_path: selectedPath.join(" › "), correct: isCorrect, skipped: false });
+  if (isCorrect) {
+    const el = document.getElementById("feedback-correct");
+    el.textContent = "✓ ¡Correcto! Seleccionaste: " + selectedPath.join(" › ");
+    el.style.display = "block";
+  } else {
+    const el = document.getElementById("feedback-wrong");
+    el.textContent = "La sección esperada era diferente. Seleccionaste: " + selectedPath.join(" › ");
+    el.style.display = "block";
+  }
+  showNextButton();
+}
+
+function skipTask() {
+  if (confirmed) return;
+  confirmed = true;
+  answers.push({ task: currentTask+1, question: TASKS[currentTask].q, selected_id: null, selected_path: null, correct: false, skipped: true });
+  const el = document.getElementById("feedback-skip");
+  el.textContent = "Tarea omitida. Cuando estés listo/a, continúa con la siguiente.";
+  el.style.display = "block";
+  showNextButton();
+}
+
+function showNextButton() {
+  document.getElementById("btn-row-confirm").style.display = "none";
+  document.getElementById("skip-link-txt").style.display = "none";
+  const nextRow = document.getElementById("btn-row-next");
+  nextRow.style.display = "block";
+  const isLast = currentTask + 1 >= TASKS.length;
+  document.getElementById("btn-next").textContent = isLast ? "Ir al cuestionario final →" : "Siguiente tarea →";
+}
+
+function nextTask() {
+  if (currentTask + 1 < TASKS.length) { showTask(currentTask + 1); }
+  else { document.getElementById("screen-task").style.display = "none"; showQuestionnaire(); }
+}
+
+// ── Questionnaire ──
+function buildScale(containerId, key) {
+  const container = document.getElementById(containerId);
+  [1,2,3,4,5].forEach(n => {
+    const btn = document.createElement("button");
+    btn.className = "scale-btn"; btn.textContent = n;
+    btn.addEventListener("click", () => {
+      container.querySelectorAll(".scale-btn").forEach(b => b.classList.remove("sel"));
+      btn.classList.add("sel"); scaleAnswers[key] = n;
+    });
+    container.appendChild(btn);
+  });
+}
+
+function buildCheckboxes() {
+  const container = document.getElementById("checkbox-labels");
+  LABELS_LIST.forEach(label => {
+    const item = document.createElement("label");
+    item.className = "checkbox-item";
+    item.innerHTML = `<input type="checkbox" value="${label}"> ${label}`;
+    item.querySelector("input").addEventListener("change", function() {
+      if (this.checked) { checkedLabels.add(label); item.classList.add("checked"); }
+      else { checkedLabels.delete(label); item.classList.remove("checked"); }
+    });
+    container.appendChild(item);
+  });
+}
+
+function showQuestionnaire() {
+  buildScale("scale-q1","q1"); buildScale("scale-q2","q2"); buildScale("scale-q5","q5");
+  buildCheckboxes();
+  document.getElementById("screen-questionnaire").style.display = "block";
+  setProgress(92);
+}
+
+async function submitQuestionnaire() {
+  if (!scaleAnswers.q1 || !scaleAnswers.q2 || !scaleAnswers.q5) {
+    document.getElementById("err-questionnaire").style.display = "block"; return;
+  }
+  document.getElementById("err-questionnaire").style.display = "none";
+  const qData = {
+    q1_facilidad: scaleAnswers.q1, q2_confianza: scaleAnswers.q2,
+    q3_labels_confusos: [...checkedLabels],
+    q4_comentario: document.getElementById("q4-text").value.trim(),
+    q5_organizacion: scaleAnswers.q5
+  };
+  await sendToSheets(qData);
+  document.getElementById("screen-questionnaire").style.display = "none";
+  document.getElementById("screen-done").style.display = "block";
+  setProgress(100);
+}
+
+// ── Google Sheets ──
+async function sendToSheets(qData) {
+  try {
+    const rows = answers.map(a => ({
+      sesion: participantId,
+      semestre: participantSemestre,
+      programa: participantPrograma,
+      tarea: a.task,
+      pregunta: a.question,
+      ruta_seleccionada: a.selected_path || "",
+      correcto: a.correct ? 1 : 0,
+      omitida: a.skipped ? 1 : 0,
+      q1_facilidad: qData.q1_facilidad,
+      q2_confianza: qData.q2_confianza,
+      q3_labels: (qData.q3_labels_confusos || []).join("; "),
+      q4_comentario: qData.q4_comentario,
+      q5_organizacion: qData.q5_organizacion
+    }));
+    await fetch(SHEETS_URL, {
+      method: "POST", mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rows })
+    });
+  } catch(e) { console.warn("Sheets sync failed:", e); }
+}
+</script>
+</body>
+</html>
