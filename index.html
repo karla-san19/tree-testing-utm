@@ -60,8 +60,8 @@
   .skip-link{font-size:11px;color:var(--gray);cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block;}
   /* Feedback */
   .feedback-box{padding:12px 14px;border-radius:6px;margin:14px 0;font-size:12px;line-height:1.5;display:none;}
-  .feedback-correct{background:#E6F5EF;border-left:4px solid var(--green);color:#0A4030;}
-  .feedback-wrong{background:#FAF0ED;border-left:4px solid var(--red);color:#5C2010;}
+  .feedback-correct{background:var(--blush);border-left:4px solid var(--blue);color:var(--navy);}
+  .feedback-wrong{background:var(--blush);border-left:4px solid var(--blue);color:var(--navy);}
   .feedback-skip{background:var(--blush);border-left:4px solid var(--gray);color:var(--gray);}
   /* Questionnaire */
   .q-label{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:8px;line-height:1.4;}
@@ -396,15 +396,9 @@ function confirmSelection() {
   const task = TASKS[currentTask];
   const isCorrect = task.correct.includes(selectedNode.id);
   answers.push({ task: currentTask+1, question: task.q, selected_id: selectedNode.id, selected_path: selectedPath.join(" › "), correct: isCorrect, skipped: false });
-  if (isCorrect) {
-    const el = document.getElementById("feedback-correct");
-    el.textContent = "✓ ¡Correcto! Seleccionaste: " + selectedPath.join(" › ");
-    el.style.display = "block";
-  } else {
-    const el = document.getElementById("feedback-wrong");
-    el.textContent = "La sección esperada era diferente. Seleccionaste: " + selectedPath.join(" › ");
-    el.style.display = "block";
-  }
+  const el = document.getElementById("feedback-correct");
+  el.textContent = "Respuesta registrada: " + selectedPath.join(" › ");
+  el.style.display = "block";
   showNextButton();
 }
 
@@ -413,7 +407,7 @@ function skipTask() {
   confirmed = true;
   answers.push({ task: currentTask+1, question: TASKS[currentTask].q, selected_id: null, selected_path: null, correct: false, skipped: true });
   const el = document.getElementById("feedback-skip");
-  el.textContent = "Tarea omitida. Cuando estés listo/a, continúa con la siguiente.";
+  el.textContent = "Sin selección registrada. Continúa con la siguiente tarea.";
   el.style.display = "block";
   showNextButton();
 }
